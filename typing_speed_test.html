@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typing Speed Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      color: #fff;
+      text-align: center;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+    #timer {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    #text-display {
+      background: #fff;
+      color: #000;
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      font-size: 1.2rem;
+    }
+    #user-input {
+      width: 100%;
+      height: 100px;
+      padding: 1rem;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 10px;
+    }
+    #results {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+    }
+    select, button {
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      border: none;
+      margin: 0.5rem;
+    }
+    #preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      flex-direction: column;
+      color: white;
+      font-size: 1.5rem;
+      display: none;
+    }
+    .keyboard-animation {
+      animation: pressKeys 0.5s infinite alternate;
+    }
+    @keyframes pressKeys {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
+    }
+  </style>
+</head>
+<body>
+  <div id="preloader">
+    <div class="keyboard-animation">⌨️ Loading...</div>
+  </div>
+
+  <div class="container">
+    <h1>Typing Speed Test</h1>
+
+    <label for="time-select">Select Time:</label>
+    <select id="time-select">
+      <option value="60">1 Minute</option>
+      <option value="120">2 Minutes</option>
+      <option value="180">3 Minutes</option>
+      <option value="240">4 Minutes</option>
+      <option value="300">5 Minutes</option>
+    </select>
+    <button onclick="startTest()">Start</button>
+
+    <div id="timer">Time: 0</div>
+    <div id="text-display"></div>
+    <textarea id="user-input" placeholder="Start typing here..." disabled></textarea>
+    <div id="results"></div>
+  </div>
+
+  <script>
+    const textSamples = {
+      60: [
+        "The quick brown fox jumps over the lazy dog. This sentence contains every letter in the English alphabet, and it has been used for decades to test typewriters, keyboards, and now typing speed and accuracy. Practicing this sentence repeatedly can improve muscle memory for typing."
+      ],
+      120: [
+        "Typing speed tests are a fun way to improve your typing skills. They help you become more efficient at using a keyboard and allow you to track your progress over time. Consistent practice can significantly increase your productivity in both personal and professional digital tasks. The more you type, the more natural it feels to convert your thoughts into text without hesitation. It also builds your confidence in communication and multitasking."
+      ],
+      180: [
+        "Practice daily to see improvements in speed and accuracy. When you type regularly, your fingers become familiar with the keyboard layout, and your brain begins to associate word patterns with finger movements. Over time, you will be able to type complex texts with minimal effort and fewer mistakes. It is also useful to measure your performance using different tests to challenge your reflexes and comprehension. Effective typing not only saves time but also reduces the mental strain involved in expressing ideas in written form."
+      ],
+      240: [
+        "Accuracy is just as important as speed in typing tests. While fast typing is impressive, typing with minimal errors is what truly defines a skilled typist. Make sure to focus on typing the correct words first, and the speed will naturally follow with practice and confidence. Training yourself to pause less frequently and rely on muscle memory can transform your workflow. Many professionals rely on their typing abilities to meet deadlines, respond to clients, and document essential information."
+      ],
+      300: [
+        "Consistent practice is the key to becoming a fast typist. Like any skill, typing fluently requires dedication and repetition. You should aim to challenge yourself with longer and more complex paragraphs to stretch your ability and become more comfortable under time constraints. Mastery comes with exposure to a wide variety of content types, including technical, creative, and formal language. Typing tests can simulate real-world tasks like composing emails, writing reports, or participating in chats. Improving in this area provides advantages in academic, professional, and personal communication. The benefits of becoming a proficient typist cannot be overstated in the digital age, where time and clarity are critical to success."
+      ]
+    };
+
+    let timeLimit = 60;
+    let timeLeft = 0;
+    let timerInterval;
+    let startTime;
+
+    function showPreloader() {
+      document.getElementById("preloader").style.display = "flex";
+      setTimeout(() => {
+        document.getElementById("preloader").style.display = "none";
+        beginTypingTest();
+      }, 6000);
+    }
+
+    function startTest() {
+      showPreloader();
+    }
+
+    function beginTypingTest() {
+      timeLimit = parseInt(document.getElementById('time-select').value);
+      const sampleOptions = textSamples[timeLimit];
+      const sample = sampleOptions[Math.floor(Math.random() * sampleOptions.length)];
+      document.getElementById('text-display').innerText = sample;
+      document.getElementById('user-input').value = "";
+      document.getElementById('user-input').disabled = false;
+      document.getElementById('results').innerText = "";
+      document.getElementById('user-input').focus();
+
+      timeLeft = timeLimit;
+      document.getElementById('timer').innerText = `Time: ${timeLeft}`;
+
+      clearInterval(timerInterval);
+      startTime = new Date();
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerText = `Time: ${timeLeft}`;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          finishTest();
+        }
+      }, 1000);
+    }
+
+    function finishTest() {
+      document.getElementById('user-input').disabled = true;
+      const endTime = new Date();
+      const typedText = document.getElementById('user-input').value.trim();
+      const wordCount = typedText.split(/\s+/).length;
+      const durationInMinutes = timeLimit / 60;
+      const wpm = Math.round(wordCount / durationInMinutes);
+      const originalText = document.getElementById('text-display').innerText.trim();
+
+      let correctWords = 0;
+      const typedWords = typedText.split(/\s+/);
+      const originalWords = originalText.split(/\s+/);
+      typedWords.forEach((word, i) => {
+        if (word === originalWords[i]) {
+          correctWords++;
+        }
+      });
+
+      const accuracy = ((correctWords / originalWords.length) * 100).toFixed(2);
+
+      document.getElementById('results').innerHTML = `
+        <p><strong>Words Per Minute (WPM):</strong> ${wpm}</p>
+        <p><strong>Accuracy:</strong> ${accuracy}%</p>
+        <p><strong>Total Words Typed:</strong> ${wordCount}</p>
+        <p><strong>Correct Words:</strong> ${correctWords}</p>
+      `;
+
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
